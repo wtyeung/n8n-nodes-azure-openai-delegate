@@ -1,0 +1,14 @@
+{
+	"node": "n8n-nodes-azure-openai-delegate.lmEmbeddingAzureOpenAiApimGateway",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Development"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://github.com/wtyeung/n8n-nodes-azure-openai-delegate#credentials" }
+		],
+		"primaryDocumentation": [
+			{ "url": "https://github.com/wtyeung/n8n-nodes-azure-openai-delegate" }
+		]
+	}
+}

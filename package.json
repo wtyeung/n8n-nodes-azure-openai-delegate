@@ -1,0 +1,54 @@
+{
+	"name": "n8n-nodes-azure-openai-delegate",
+	"version": "0.1.0",
+	"description": "Azure OpenAI chat model for n8n through an APIM LLM gateway with delegated Microsoft Entra OAuth2",
+	"license": "MIT",
+	"homepage": "https://github.com/wtyeung/n8n-nodes-azure-openai-delegate",
+	"keywords": [
+		"n8n-community-node-package"
+	],
+	"author": {
+		"name": "Tim Yeung",
+		"email": "tim.yeung@hku.hk"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/wtyeung/n8n-nodes-azure-openai-delegate.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "node --env-file=.env ./node_modules/@n8n/node-cli/bin/n8n-node.mjs dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/ApimGatewayEntraOAuth2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/AzureOpenAiEmbeddingsApimGateway/AzureOpenAiEmbeddingsApimGateway.node.js",
+			"dist/nodes/LmChatAzureOpenAiApimGateway/LmChatAzureOpenAiApimGateway.node.js",
+			"dist/nodes/LmEmbeddingAzureOpenAiApimGateway/LmEmbeddingAzureOpenAiApimGateway.node.js"
+		]
+	},
+	"devDependencies": {
+		"@langchain/openai": "1.4.4",
+		"@n8n/ai-utilities": "*",
+		"@n8n/node-cli": "*",
+		"@types/node": "^20.10.0",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"release-it": "^21.1.0",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
