@@ -96,6 +96,12 @@ export class LmEmbeddingAzureOpenAiApimGateway implements INodeType {
 			const options = this.getNodeParameter('options', itemIndex, {}) as EmbeddingOptions;
 			const timeout = options.timeout ?? 60000;
 			const auth = await resolveGatewayAuth(this);
+			this.logger.info('Initializing Azure OpenAI APIM embedding model', {
+				deploymentName,
+				timeout,
+				batchSize: options.batchSize,
+				dimensions: options.dimensions,
+			});
 
 			const { AzureOpenAIEmbeddings } = await import('@langchain/openai');
 			const { aiClientFetch, getProxyAgent, logWrapper } = await import('@n8n/ai-utilities');

@@ -4,6 +4,7 @@
 
 - Route Responses API requests through the APIM `/openai/responses` endpoint.
 - Keep Chat Completions requests on the Azure deployment endpoint.
+- Add safe diagnostics for model routing, embeddings, and delegated token refresh.
 
 ## 0.1.0 - 2026-10-12
 

@@ -93,6 +93,12 @@ export class AzureOpenAiEmbeddingsApimGateway implements INodeType {
 				const deploymentName = this.getNodeParameter('model', itemIndex) as string;
 				const text = this.getNodeParameter('text', itemIndex) as string;
 				const options = this.getNodeParameter('options', itemIndex, {}) as EmbeddingOptions;
+				this.logger.debug('Generating Azure OpenAI APIM embedding', {
+					deploymentName,
+					itemIndex,
+					dimensions: options.dimensions,
+					encodingFormat: options.encodingFormat,
+				});
 				const token = await auth.getToken();
 				const url = `${auth.endpoint}/openai/deployments/${encodeURIComponent(deploymentName)}/embeddings?api-version=${encodeURIComponent(auth.apiVersion)}`;
 				const body: IDataObject = { input: text };

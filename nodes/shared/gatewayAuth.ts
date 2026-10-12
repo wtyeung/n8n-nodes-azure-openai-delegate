@@ -64,6 +64,10 @@ export async function resolveGatewayAuth(ctx: GatewayContext): Promise<GatewayAu
 		let { token, expiresAt } = await readToken(ctx);
 		const now = Math.floor(Date.now() / 1000);
 		if (expiresAt && now >= expiresAt - buffer) {
+			ctx.logger.info('Delegated access token is near expiry; requesting refresh', {
+				expiresInSeconds: expiresAt - now,
+				refreshBufferSeconds: buffer,
+			});
 			try {
 				await ctx.helpers.httpRequestWithAuthentication.call(ctx, APIM_GATEWAY_CREDENTIAL, {
 					url: probeUrl,
@@ -81,6 +85,9 @@ export async function resolveGatewayAuth(ctx: GatewayContext): Promise<GatewayAu
 				}
 			}
 			({ token, expiresAt } = await readToken(ctx));
+			ctx.logger.info('Delegated access token refresh probe completed', {
+				expiresInSeconds: expiresAt ? expiresAt - now : undefined,
+			});
 			if (expiresAt && now >= expiresAt) {
 				throw new NodeOperationError(
 					ctx.getNode(),

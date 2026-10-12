@@ -202,6 +202,11 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 				N8nLlmTracing,
 			} = await import('@n8n/ai-utilities');
 
+			this.logger.info('Initializing Azure OpenAI APIM chat model', {
+				deploymentName,
+				api: options.useResponsesApi ? 'responses' : 'chat-completions',
+				timeout,
+			});
 			const dispatcher = getProxyAgent(
 				auth.endpoint,
 				{ headersTimeout: timeout, bodyTimeout: timeout },
@@ -222,6 +227,7 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 			};
 
 			if (options.useResponsesApi) {
+				this.logger.debug('Using APIM Responses API route', { deploymentName });
 				const model = new ChatOpenAI({
 					...commonOptions,
 					useResponsesApi: true,
@@ -240,6 +246,7 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 				return { response: model };
 			}
 
+			this.logger.debug('Using APIM Chat Completions deployment route', { deploymentName });
 			const model = new AzureChatOpenAI({
 				...commonOptions,
 				azureOpenAIApiDeploymentName: deploymentName,
