@@ -194,7 +194,7 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 			const auth = await resolveGatewayAuth(this);
 
 			// Dynamic imports keep the node loadable when @langchain packages are not resolvable at load time
-			const { AzureChatOpenAI } = await import('@langchain/openai');
+			const { AzureChatOpenAI, ChatOpenAI } = await import('@langchain/openai');
 			const {
 				aiClientFetch,
 				getProxyAgent,
@@ -202,12 +202,13 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 				N8nLlmTracing,
 			} = await import('@n8n/ai-utilities');
 
-			const model = new AzureChatOpenAI({
+			const dispatcher = getProxyAgent(
+				auth.endpoint,
+				{ headersTimeout: timeout, bodyTimeout: timeout },
+				this.helpers.getSecureEgressFilter(),
+			) as never;
+			const commonOptions = {
 				model: deploymentName,
-				azureOpenAIApiDeploymentName: deploymentName,
-				azureADTokenProvider: auth.getToken,
-				azureOpenAIEndpoint: auth.endpoint,
-				azureOpenAIApiVersion: auth.apiVersion,
 				maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
 				temperature: options.temperature,
 				topP: options.topP,
@@ -215,24 +216,44 @@ export class LmChatAzureOpenAiApimGateway implements INodeType {
 				presencePenalty: options.presencePenalty,
 				timeout,
 				maxRetries: options.maxRetries ?? 2,
+				streaming: false,
+				callbacks: [new N8nLlmTracing(this)],
+				onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
+			};
+
+			if (options.useResponsesApi) {
+				const model = new ChatOpenAI({
+					...commonOptions,
+					useResponsesApi: true,
+					modelKwargs:
+						options.responseFormat === 'json_object'
+							? { text: { format: { type: 'json_object' } } }
+							: undefined,
+					configuration: {
+						baseURL: `${auth.endpoint}/openai`,
+						apiKey: auth.getToken,
+						defaultQuery: { 'api-version': auth.apiVersion },
+						fetch: aiClientFetch,
+						fetchOptions: { dispatcher },
+					},
+				});
+				return { response: model };
+			}
+
+			const model = new AzureChatOpenAI({
+				...commonOptions,
+				azureOpenAIApiDeploymentName: deploymentName,
+				azureADTokenProvider: auth.getToken,
+				azureOpenAIEndpoint: auth.endpoint,
+				azureOpenAIApiVersion: auth.apiVersion,
 				modelKwargs: options.responseFormat
 					? { response_format: { type: options.responseFormat } }
 					: undefined,
-				streaming: false,
-				// Pin Chat Completions; newer @langchain/openai would otherwise auto-switch some models to /responses
-				useResponsesApi: options.useResponsesApi ?? false,
-				callbacks: [new N8nLlmTracing(this)],
+				useResponsesApi: false,
 				configuration: {
 					fetch: aiClientFetch,
-					fetchOptions: {
-						dispatcher: getProxyAgent(
-							auth.endpoint,
-							{ headersTimeout: timeout, bodyTimeout: timeout },
-							this.helpers.getSecureEgressFilter(),
-						) as never,
-					},
+					fetchOptions: { dispatcher },
 				},
-				onFailedAttempt: makeN8nLlmFailedAttemptHandler(this),
 			});
 
 			return { response: model };

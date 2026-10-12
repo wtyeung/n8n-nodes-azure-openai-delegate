@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-azure-openai-delegate",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Azure OpenAI chat model for n8n through an APIM LLM gateway with delegated Microsoft Entra OAuth2",
 	"license": "MIT",
 	"homepage": "https://github.com/wtyeung/n8n-nodes-azure-openai-delegate",
